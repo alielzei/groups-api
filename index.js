@@ -15,6 +15,12 @@ app.use(cors({
 	credentials: true
 }));
 
+app.use(function(req, res, next){
+	setTimeout(function(){
+		next();
+	}, 200)
+});
+
 app.use('/', [auth, crud]);
 
 app.listen(port, () => { //port

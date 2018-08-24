@@ -22,6 +22,17 @@ router.get('/links', (req, res) => {
 		});
 });
 
+router.get('/mygroups', authorize, (req, res) => {
+	db.user.getGroups(req.signedCookies['id'])
+		.then(result => {
+			res.json(result.rows);
+		})
+		.catch(err => {
+			console.error(err);
+			res.status(500).end('nfokho');
+		});
+});
+
 router.get('/search', (req, res) => {
 	const input = req.query['input'];
 	if(input){
@@ -83,6 +94,37 @@ router.post('/delete', authorize, (req,res) => {
 					db.links.delete(id)
 						.then( () => {
 							res.json({ msg: "delete success"});
+						})
+						.catch( err => {
+							console.error(err);
+							res.status(500).end();
+						});
+				}else{
+					res.status(401).end();
+				}
+			})
+			.catch( err => {
+				console.error(err);
+				res.status(500).end();
+			});
+	}else{
+		res.status(400).end({ msg: 'invalid id' });
+	}
+});
+
+router.post('/update', authorize, (req, res) => {
+	if (!isNaN(req.body['id'])){ 
+		let id = parseInt(req.body['id']),
+			title = req.body['title'];
+		db.links.getById(id)
+			.then(result => {
+				var link = result.rows[0];
+				if(!link){
+					res.status(404).json({msg: "link not found"});
+				}else if(parseInt(link['user']) === parseInt(req.signedCookies['id'])){
+					db.links.update(id, title)
+						.then( () => {
+							res.json({ msg: "update success"});
 						})
 						.catch( err => {
 							console.error(err);

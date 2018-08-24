@@ -17,6 +17,10 @@ module.exports.links = {
 	delete: function(id){
 		return pool.query('DELETE FROM links WHERE "id" = $1', [id]);
 	},
+	update: function(id, title){
+		console.log(title);
+		return pool.query('UPDATE links SET title = $1 WHERE "id" = $2', [title, id]);
+	},
 	search: function(input){
 		let values = input.replace(/\s+/g, ' ').trim().split(' ').join(' & ');
 		return pool.query("SELECT * FROM links WHERE tokens @@ to_tsquery($1)", [values]);
@@ -32,5 +36,8 @@ module.exports.user = {
 	},
 	add: function(username, password){
 		return pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, password]);
+	},
+	getGroups: function(id){;
+		return pool.query('SELECT id, title, group_id FROM links WHERE "user" = $1', [parseInt(id)]);
 	}
 }
